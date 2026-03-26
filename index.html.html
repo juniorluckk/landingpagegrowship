@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>growship.lab — Automação & Crescimento para Negócios Locais</title>
+<meta name="description" content="Automação inteligente, tráfego pago e criação de sites para negócios locais que querem crescer de verdade.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --orange: #F47B2B;
+    --orange-dim: rgba(244, 123, 43, 0.12);
+    --orange-border: rgba(244, 123, 43, 0.25);
+    --bg: #080808;
+    --bg-2: #0f0f0f;
+    --bg-3: #161616;
+    --text: #F0EDE8;
+    --text-muted: #7A776F;
+    --text-soft: #B8B4AC;
+    --border: rgba(255,255,255,0.07);
+    --border-hover: rgba(255,255,255,0.12);
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  /* ── NOISE TEXTURE ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 20px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.3s, background 0.3s;
+  }
+  nav.scrolled {
+    background: rgba(8,8,8,0.85);
+    backdrop-filter: blur(16px);
+    border-bottom-color: var(--border);
+  }
+
+  .nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+  }
+  .nav-logo svg { width: 32px; height: 32px; }
+  .nav-logo span {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--text);
+    letter-spacing: -0.02em;
+  }
+  .nav-logo span em {
+    font-style: normal;
+    color: var(--orange);
+  }
+
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    list-style: none;
+  }
+  .nav-links a {
+    color: var(--text-soft);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 400;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--text); }
+
+  .nav-cta {
+    background: var(--orange);
+    color: #fff !important;
+    padding: 9px 20px;
+    border-radius: 6px;
+    font-weight: 500 !important;
+    font-size: 14px !important;
+    transition: opacity 0.2s !important;
+  }
+  .nav-cta:hover { opacity: 0.88; }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 120px 40px 80px;
+    position: relative;
+    z-index: 1;
+    text-align: center;
+  }
+
+  .hero-glow {
+    position: absolute;
+    top: 0; left: 50%; transform: translateX(-50%);
+    width: 700px; height: 400px;
+    background: radial-gradient(ellipse at center top, rgba(244,123,43,0.14) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--orange-dim);
+    border: 1px solid var(--orange-border);
+    border-radius: 100px;
+    padding: 6px 14px;
+    font-size: 13px;
+    color: var(--orange);
+    font-weight: 500;
+    margin-bottom: 32px;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.1s ease forwards;
+  }
+  .hero-badge::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--orange);
+    flex-shrink: 0;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  .hero-title {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(42px, 7vw, 82px);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    max-width: 820px;
+    margin: 0 auto 24px;
+    opacity: 0;
+    animation: fadeUp 0.7s 0.2s ease forwards;
+  }
+  .hero-title .accent { color: var(--orange); }
+
+  .hero-subtitle {
+    font-size: clamp(15px, 2vw, 18px);
+    color: var(--text-soft);
+    max-width: 520px;
+    margin: 0 auto 48px;
+    line-height: 1.7;
+    font-weight: 300;
+    opacity: 0;
+    animation: fadeUp 0.7s 0.35s ease forwards;
+  }
+
+  .hero-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    flex-wrap: wrap;
+    opacity: 0;
+    animation: fadeUp 0.7s 0.5s ease forwards;
+  }
+
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--orange);
+    color: #fff;
+    padding: 14px 28px;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: opacity 0.2s, transform 0.2s;
+  }
+  .btn-primary:hover { opacity: 0.88; transform: translateY(-1px); }
+  .btn-primary svg { width: 16px; height: 16px; }
+
+  .btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: transparent;
+    color: var(--text-soft);
+    border: 1px solid var(--border-hover);
+    padding: 14px 28px;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 400;
+    text-decoration: none;
+    transition: color 0.2s, border-color 0.2s;
+  }
+  .btn-ghost:hover { color: var(--text); border-color: rgba(255,255,255,0.2); }
+
+  .hero-scroll {
+    position: absolute;
+    bottom: 40px; left: 50%; transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.9s ease forwards;
+  }
+  .hero-scroll span {
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .scroll-line {
+    width: 1px; height: 40px;
+    background: linear-gradient(to bottom, var(--orange), transparent);
+    animation: scrollDrop 1.8s ease infinite;
+  }
+  @keyframes scrollDrop {
+    0% { transform: scaleY(0); transform-origin: top; }
+    50% { transform: scaleY(1); transform-origin: top; }
+    51% { transform: scaleY(1); transform-origin: bottom; }
+    100% { transform: scaleY(0); transform-origin: bottom; }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── STATS ── */
+  .stats {
+    padding: 0 40px 100px;
+    position: relative; z-index: 1;
+  }
+  .stats-inner {
+    max-width: 860px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    background: var(--bg-2);
+  }
+  .stat {
+    padding: 36px 32px;
+    border-right: 1px solid var(--border);
+    transition: background 0.2s;
+  }
+  .stat:last-child { border-right: none; }
+  .stat:hover { background: var(--bg-3); }
+  .stat-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 40px;
+    font-weight: 800;
+    color: var(--orange);
+    letter-spacing: -0.03em;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  .stat-label {
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  /* ── SECTION ── */
+  section {
+    padding: 100px 40px;
+    position: relative; z-index: 1;
+  }
+  .container { max-width: 1060px; margin: 0 auto; }
+
+  .section-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--orange);
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    margin-bottom: 16px;
+  }
+  .section-label::before {
+    content: '';
+    width: 20px; height: 1px;
+    background: var(--orange);
+  }
+
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(28px, 4vw, 46px);
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    line-height: 1.1;
+    margin-bottom: 16px;
+  }
+  .section-desc {
+    font-size: 17px;
+    color: var(--text-soft);
+    font-weight: 300;
+    max-width: 460px;
+    line-height: 1.7;
+  }
+
+  /* ── SERVICES ── */
+  #servicos { background: var(--bg); }
+  .services-header { margin-bottom: 60px; }
+
+  .services-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    background: var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  .service-card {
+    background: var(--bg-2);
+    padding: 44px 36px;
+    transition: background 0.25s;
+    position: relative;
+    cursor: default;
+  }
+  .service-card:hover { background: var(--bg-3); }
+
+  .service-icon {
+    width: 48px; height: 48px;
+    border-radius: 10px;
+    background: var(--orange-dim);
+    border: 1px solid var(--orange-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 28px;
+  }
+  .service-icon svg { width: 22px; height: 22px; color: var(--orange); }
+
+  .service-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    letter-spacing: -0.02em;
+  }
+  .service-desc {
+    font-size: 15px;
+    color: var(--text-soft);
+    line-height: 1.65;
+    font-weight: 300;
+    margin-bottom: 28px;
+  }
+  .service-items {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .service-items li {
+    font-size: 13px;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .service-items li::before {
+    content: '';
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: var(--orange);
+    flex-shrink: 0;
+  }
+
+  /* ── HOW IT WORKS ── */
+  #como-funciona { background: var(--bg-2); }
+
+  .steps {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+    margin-top: 60px;
+    background: var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  .step {
+    background: var(--bg-2);
+    padding: 40px 36px;
+    display: flex;
+    gap: 24px;
+    transition: background 0.2s;
+  }
+  .step:hover { background: var(--bg-3); }
+
+  .step-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--orange);
+    opacity: 0.6;
+    letter-spacing: 0.06em;
+    flex-shrink: 0;
+    padding-top: 3px;
+  }
+  .step-content h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    letter-spacing: -0.02em;
+  }
+  .step-content p {
+    font-size: 14px;
+    color: var(--text-soft);
+    line-height: 1.6;
+    font-weight: 300;
+  }
+
+  /* ── CTA ── */
+  #contato { background: var(--bg); }
+  .cta-box {
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 80px 60px;
+    text-align: center;
+    background: var(--bg-2);
+    position: relative;
+    overflow: hidden;
+  }
+  .cta-box::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 50%; transform: translateX(-50%);
+    width: 500px; height: 200px;
+    background: radial-gradient(ellipse at center top, rgba(244,123,43,0.1) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .cta-box .section-title {
+    max-width: 580px;
+    margin: 0 auto 16px;
+  }
+  .cta-box .section-desc {
+    max-width: 400px;
+    margin: 0 auto 40px;
+    text-align: center;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 40px;
+    position: relative; z-index: 1;
+  }
+  .footer-inner {
+    max-width: 1060px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .footer-copy {
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+  .footer-links {
+    display: flex;
+    gap: 24px;
+    list-style: none;
+  }
+  .footer-links a {
+    font-size: 13px;
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .footer-links a:hover { color: var(--text-soft); }
+
+  /* ── DIVIDER ── */
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 0 40px;
+    position: relative; z-index: 1;
+  }
+
+  /* ── SCROLL REVEAL ── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ── MOBILE ── */
+  @media (max-width: 768px) {
+    nav { padding: 16px 20px; }
+    .nav-links { display: none; }
+
+    .hero { padding: 100px 20px 80px; }
+
+    .stats { padding: 0 20px 60px; }
+    .stats-inner {
+      grid-template-columns: 1fr;
+      border-radius: 12px;
+    }
+    .stat { border-right: none; border-bottom: 1px solid var(--border); }
+    .stat:last-child { border-bottom: none; }
+
+    section { padding: 70px 20px; }
+    .divider { margin: 0 20px; }
+
+    .services-grid {
+      grid-template-columns: 1fr;
+    }
+    .steps {
+      grid-template-columns: 1fr;
+    }
+
+    .cta-box { padding: 48px 24px; }
+
+    footer { padding: 32px 20px; }
+    .footer-inner { flex-direction: column; gap: 16px; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav id="nav">
+  <a href="#" class="nav-logo">
+    <!-- Logo SVG inline baseado na marca -->
+    <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M20 4L28 14H24V22L32 18L26 30H20L14 30H8L14 18L22 22V14H16L20 4Z" fill="#F47B2B" opacity="0.15"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M20 5L27.5 15.5H23.5V20.5C26.5 19 29.8 18.2 32.5 19.2L27 31H13L7.5 19.2C10.2 18.2 13.5 19 16.5 20.5V15.5H12.5L20 5Z" fill="#F47B2B"/>
+      <path d="M8 24C8 24 12 28 20 28C28 28 32 24 32 24" stroke="#F47B2B" stroke-width="2.5" stroke-linecap="round" opacity="0.5"/>
+    </svg>
+    <span>growship<em>.lab</em></span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#servicos">Serviços</a></li>
+    <li><a href="#como-funciona">Como funciona</a></li>
+    <li><a href="#contato" class="nav-cta">Falar com a equipe</a></li>
+  </ul>
+</nav>
+
+<!-- ── HERO ── -->
+<section class="hero">
+  <div class="hero-glow"></div>
+  <div>
+    <div class="hero-badge">Automação inteligente para negócios locais</div>
+    <h1 class="hero-title">
+      Seu negócio crescendo<br>
+      <span class="accent">no piloto automático.</span>
+    </h1>
+    <p class="hero-subtitle">
+      Automação, tráfego pago e sites que convertem — tudo integrado para você vender mais sem depender de processos manuais.
+    </p>
+    <div class="hero-actions">
+      <a href="#contato" class="btn-primary">
+        Quero crescer agora
+        <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M3 8H13M13 8L9 4M13 8L9 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
+      <a href="#servicos" class="btn-ghost">Ver serviços</a>
+    </div>
+  </div>
+  <div class="hero-scroll">
+    <div class="scroll-line"></div>
+    <span>scroll</span>
+  </div>
+</section>
+
+<!-- ── STATS ── -->
+<div class="stats">
+  <div class="stats-inner">
+    <div class="stat reveal">
+      <div class="stat-num">3×</div>
+      <div class="stat-label">mais pedidos com automação de atendimento via WhatsApp</div>
+    </div>
+    <div class="stat reveal">
+      <div class="stat-num">72h</div>
+      <div class="stat-label">para seu negócio já estar rodando com automação ativa</div>
+    </div>
+    <div class="stat reveal">
+      <div class="stat-num">100%</div>
+      <div class="stat-label">focado em negócios locais e lançamentos digitais</div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ── SERVIÇOS ── -->
+<section id="servicos">
+  <div class="container">
+    <div class="services-header reveal">
+      <div class="section-label">Serviços</div>
+      <h2 class="section-title">O que a growship.lab<br>faz pelo seu negócio</h2>
+      <p class="section-desc">Cada solução foi pensada para negócios locais que precisam de resultado rápido e escala real.</p>
+    </div>
+
+    <div class="services-grid">
+      <!-- Automação -->
+      <div class="service-card reveal">
+        <div class="service-icon">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="service-name">Automação</div>
+        <p class="service-desc">
+          Atendimento, captura de leads e pedidos rodando 24h no WhatsApp — sem você precisar responder manualmente.
+        </p>
+        <ul class="service-items">
+          <li>Chatbot inteligente com IA</li>
+          <li>Fluxo de pedidos automatizado</li>
+          <li>Notificações e follow-up automático</li>
+          <li>Integração com sistemas existentes</li>
+        </ul>
+      </div>
+
+      <!-- Tráfego Pago -->
+      <div class="service-card reveal">
+        <div class="service-icon">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M22 12H18L15 21L9 3L6 12H2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="service-name">Tráfego Pago</div>
+        <p class="service-desc">
+          Campanhas no Meta e Google focadas em trazer clientes reais para o seu negócio local, com ROI mensurável.
+        </p>
+        <ul class="service-items">
+          <li>Campanhas Meta Ads e Google Ads</li>
+          <li>Segmentação geolocalizada</li>
+          <li>Criativos e copy persuasivo</li>
+          <li>Relatórios semanais de performance</li>
+        </ul>
+      </div>
+
+      <!-- Criação de Sites -->
+      <div class="service-card reveal">
+        <div class="service-icon">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="2" y="3" width="20" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M8 21H16M12 17V21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="service-name">Criação de Sites</div>
+        <p class="service-desc">
+          Sites e landing pages rápidos, modernos e prontos para converter visitantes em clientes desde o primeiro dia.
+        </p>
+        <ul class="service-items">
+          <li>Landing pages de alta conversão</li>
+          <li>Sites institucionais e e-commerce</li>
+          <li>Otimização para SEO local</li>
+          <li>Hospedagem e manutenção inclusa</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ── COMO FUNCIONA ── -->
+<section id="como-funciona">
+  <div class="container">
+    <div class="reveal">
+      <div class="section-label">Processo</div>
+      <h2 class="section-title">Da conversa ao resultado<br>em poucos dias</h2>
+      <p class="section-desc">Sem burocracia. Sem meses de espera. Você conta o problema, a gente entrega a solução.</p>
+    </div>
+
+    <div class="steps">
+      <div class="step reveal">
+        <div class="step-num">01</div>
+        <div class="step-content">
+          <h3>Diagnóstico gratuito</h3>
+          <p>Entendemos seu negócio, seus gargalos e onde está deixando dinheiro na mesa.</p>
+        </div>
+      </div>
+      <div class="step reveal">
+        <div class="step-num">02</div>
+        <div class="step-content">
+          <h3>Proposta personalizada</h3>
+          <p>Nada de pacote genérico. Montamos a solução exata para o seu momento.</p>
+        </div>
+      </div>
+      <div class="step reveal">
+        <div class="step-num">03</div>
+        <div class="step-content">
+          <h3>Implementação rápida</h3>
+          <p>Em até 72h sua automação ou site já está no ar e gerando resultado.</p>
+        </div>
+      </div>
+      <div class="step reveal">
+        <div class="step-num">04</div>
+        <div class="step-content">
+          <h3>Acompanhamento contínuo</h3>
+          <p>Monitoramos, ajustamos e otimizamos. Você foca no que sabe fazer bem.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ── CTA ── -->
+<section id="contato">
+  <div class="container">
+    <div class="cta-box reveal">
+      <div class="section-label" style="justify-content: center;">Bora crescer?</div>
+      <h2 class="section-title">Pronto para automatizar<br>e vender mais?</h2>
+      <p class="section-desc">
+        Uma conversa rápida no WhatsApp já é suficiente para a gente entender o que seu negócio precisa.
+      </p>
+      <div style="display: flex; gap: 14px; justify-content: center; flex-wrap: wrap;">
+        <a href="https://wa.me/5500000000000?text=Ol%C3%A1!%20Quero%20saber%20mais%20sobre%20os%20servi%C3%A7os%20da%20growship.lab" target="_blank" class="btn-primary">
+          <svg viewBox="0 0 24 24" fill="currentColor" style="width:16px;height:16px;" xmlns="http://www.w3.org/2000/svg">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+          </svg>
+          Chamar no WhatsApp
+        </a>
+        <a href="mailto:contato@growship.lab" class="btn-ghost">contato@growship.lab</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-inner">
+    <span class="footer-copy">© 2025 growship.lab — todos os direitos reservados</span>
+    <ul class="footer-links">
+      <li><a href="#servicos">Serviços</a></li>
+      <li><a href="#como-funciona">Processo</a></li>
+      <li><a href="#contato">Contato</a></li>
+    </ul>
+  </div>
+</footer>
+
+<script>
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 40);
+  });
+
+  const reveals = document.querySelectorAll('.reveal');
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        const delay = e.target.closest('.services-grid, .steps, .stats-inner')
+          ? Array.from(e.target.parentElement.children).indexOf(e.target) * 80
+          : 0;
+        setTimeout(() => e.target.classList.add('visible'), delay);
+        obs.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12 });
+  reveals.forEach(el => obs.observe(el));
+</script>
+</body>
+</html>
